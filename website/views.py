@@ -20,6 +20,9 @@ def home(request):
     deltaP = "...."
     expX = 0.0
 
+    if(FlagStart.objects.first() != None):
+        flag = FlagStart.objects.first().flag
+    flag = True 
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
@@ -129,7 +132,7 @@ def home(request):
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
 
-    flag = FlagStart.objects.first().flag
+    setFlag()
     if(flag):
         npzfile = np.load('./website/static/website/presets/setup.npz')
         xyValues = npzfile['psi'].tolist()
