@@ -124,8 +124,10 @@ def loadPreset(fn):
             y2 = psi[i][n]
             PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
             Pair.objects.create(x = x[i], y = y2, state = n)
+
 def setFlag():
-    setupFlag = FlagStart.objects.first()
+    FlagStart.objects.all().delete()
+    setupFlag = FlagStart.objects.create()
     setupFlag.flag = False
     setupFlag.save()
 

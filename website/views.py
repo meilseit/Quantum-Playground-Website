@@ -20,9 +20,11 @@ def home(request):
     deltaP = "...."
     expX = 0.0
 
-    if(FlagStart.objects.first() != None):
+    try:
         flag = FlagStart.objects.first().flag
-    flag = True 
+    except TypeError:
+        flag = True
+
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
