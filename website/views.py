@@ -20,11 +20,6 @@ def home(request):
     deltaP = "...."
     expX = 0.0
 
-    try:
-        flag = FlagStart.objects.first().flag
-    except AttributeError:
-        flag = True
-
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
@@ -92,15 +87,15 @@ def home(request):
             for model in PotInt.objects.all():
                 potLayout.append([model.value, model.right_bound, model.left_bound])
             x, psi, E, p2Op = generateE()
-            np.savez("pertubation.npz", psi=psi, E=E, p2Op=p2Op, x=x, V=potLayout )
             arr = ExpectationValues(p2Op, x,psi,E)
             ProcessExpectationValues(arr)
             for n in range(len(E)):
                 Energies.objects.create(n=n, Energy = E[n])
+            for n in range(len(E)):
                 for i in range(len(x)):
-                    y1 = (psi[i][n])**2
+                    #y1 = (psi[i][n])**2
                     y2 = psi[i][n]
-                    PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
+                    #PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
                     Pair.objects.create(x = x[i], y = y2, state = n)
             
 
@@ -127,6 +122,10 @@ def home(request):
             TrapLengh.objects.all().delete()
             setFlag()
 
+    try:
+        flag = FlagStart.objects.first().flag
+    except AttributeError:
+        flag = True
 
     energies = ["{:.3f}".format(energy.Energy) for energy in Energies.objects.all()]
     states = range(1, len(list(energies)) + 1)

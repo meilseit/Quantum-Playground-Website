@@ -1,1 +1,1 @@
-web: gunicorn qmwell.wsgi
+web: gunicorn qmwell.wsgi --timeout 300

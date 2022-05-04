@@ -63,14 +63,11 @@ def populate():
 def GraphState(n):
     objList = list(Pair.objects.filter(state = n))
     xyValues = [[objList[i].x ,objList[i].y] for i in range(len(objList))]
-    objList = list(PairNorm.objects.filter(stateNorm = n))
-    xyValuesNorm = [[objList[i].x ,objList[i].y] for i in range(len(objList))]
-    
+    #objList = list(PairNorm.objects.filter(stateNorm = n))
+    xyValuesNorm = [[objList[i].x ,(objList[i].y)**2] for i in range(len(objList))]
     yf = np.fft.fft(np.array(xyValues)[:, 1])
     freq = np.fft.fftfreq(len(xyValues), d=1/1000.0)
-    print(freq[-50:])
     yfNorm = (np.abs(yf))**2
-    print(yfNorm[-50:])
     xyPValuesNorm = [[freq[i], float(yfNorm[i])] for i in range(len(freq))]
     return xyValues, xyValuesNorm, xyPValuesNorm
 
@@ -102,7 +99,6 @@ def ProcessExpectationValues(arr):
         modelP.expP = arr[1][i]
         modelX.save()
         modelP.save()
-        print(np.sqrt(arr[3][i] - arr[1][i]**2)* np.sqrt(arr[2][i] - arr[0][i]**2))
         
 def loadPreset(fn):
     clear()
@@ -120,9 +116,9 @@ def loadPreset(fn):
     for n in range(len(E)):
         Energies.objects.create(n=n, Energy = E[n])
         for i in range(len(x)):
-            y1 = (psi[i][n])**2
+            #y1 = (psi[i][n])**2
             y2 = psi[i][n]
-            PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
+            #PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
             Pair.objects.create(x = x[i], y = y2, state = n)
 
 def setFlag():
