@@ -131,8 +131,6 @@ def home(request):
     x, V = generateV()
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
-
-    setFlag()
     if(flag):
         npzfile = np.load('./website/static/website/presets/setup.npz')
         xyValues = npzfile['psi'].tolist()
