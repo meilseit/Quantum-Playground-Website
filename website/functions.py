@@ -30,9 +30,11 @@ def generateE():
 def generateV():
     #TrapLengh(length = 3e-10).save()
     trapLength = 3e-10
+    particleSize = 511000.0
     if(TrapLengh.objects.first() != None):
-        trapLength = TrapLengh.objects.first().length    
-    particleSize = ParticleSize.objects.first().size
+        trapLength = TrapLengh.objects.first().length   
+    if(ParticleSize.objects.first() != None):  
+        particleSize = ParticleSize.objects.first().size
     res = 1000
     quantumSandbox = Sandbox(Pot(populate()), trapLength, particleSize, res, extend=2)
     x = quantumSandbox.x
