@@ -1,1 +1,1 @@
-web: gunicorn --chdir ./qmwell qmwell.wsgi
+web: gunicorn  /qmwell qmwell.wsgi
