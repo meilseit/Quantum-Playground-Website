@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<head>
+  {% block head%}
+  {%load static%}
+  <link rel="stylesheet" type='text/css' href="{% static './website/styles.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Font Icon CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet"/>
+  <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+  
+<link
+  rel="stylesheet"
+  href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
+  <!-- Graph API import -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script type="text/javascript" src="{% static './website/javascript/renderPotGraph.js' %}"></script>
+  <script type="text/javascript" src="{% static './website/javascript/renderXNormGraph.js' %}"></script>
+  <script type="text/javascript" src="{% static './website/javascript/renderWaveGraph.js' %}"></script>
+  <script type="text/javascript" src="{% static './website/javascript/renderPNormGraph.js' %}"></script>
+</head>
+  {% endblock %}
+  
+</head>
+<body>
+  <div class="main">
+    <div class="nav-parent shadow">
+      <div class="nav-element">
+        <button class=" btn-dropdown" type="button" data-toggle="collapse" data-target="#welcome-banner" aria-expanded="false" aria-controls="welcome-banner">
+          Welcome
+          <i class="bi bi-info-circle"></i>
+        </button>
+      </div> 
+      <div class="nav-element">
+        <button class=" btn-dropdown" type="button" data-toggle="collapse" data-target="#presets-banner" aria-expanded="false" aria-controls="preset-bannner">
+          Presets
+          <i class="bi bi-collection"></i>
+        </button>
+      </div>
+      <div class="nav-element">
+        <button class="btn-dropdown" type="button" data-toggle="collapse" data-target="#particles-banner" aria-expanded="false" aria-controls="particles-bannner">
+          Particles
+          <i class="bi bi-node-plus-fill"></i>
+        </button>
+      </div>
+      <div class="nav-element">       
+        <button class="btn-dropdown" type="button" data-toggle="collapse" data-target="#potential-banner" aria-expanded="false" aria-controls="potential-banner">
+          Potentials
+          <i class="bi bi-bricks"></i>
+        </button>
+      </div>
+      <div class="nav-element">
+        <button class="btn-dropdown" type="button" data-toggle="collapse" data-target="#results-banner" aria-expanded="false" aria-controls="results-banner">
+          Results
+          <i class="bi bi-cpu"></i>
+        </button>
+      </div>
+      <div class="nav-element">
+        <button class="btn-dropdown"  type="button" data-toggle="collapse" data-target="#more-banner" aria-expanded="false" aria-controls="welcome-banner">
+          More<span class="caret"></span>
+        </button>
+        <div class="dropdown-content5">
+
+        </div>
+      </div>
+    </div>
+    <!-- This is to indicate the banners begining=======================================================================-->
+    <div class="collapse shadow " id="welcome-banner">
+      <div class="card card-body p-0">
+        <h1 class="card-header">Getting Started:</h1>
+        <div class="p-3">  
+          <p class="card-text"> 
+            Welcome to the Quantum Sandbox! This is an environment for you to experiment with the different 
+            building blocks of quantum mechanics. Explore energies, uncertainties, potentials and of course, 
+            wavefunctions. Hopefully this will help give you a better understanding of quantum interactions. 
+            To get started we have provided a set of instructions to help build you confidence using the software!
+          </p>
+          <ol>
+            <li class= "card-text text">
+              Always begin by clearing current settings to give youself a clean slate. Start at the Presets tab and set your total well-size. This defines the area you will experimenting in. 
+              Feel free to select a preset if you want to jump right in and see some wavefunctions.
+            </li>
+            <li class= "card-text text">
+              Next, move one to the Particles tab and choose a preset particle size. Make up your own if you're feeling 
+              brave and looking to experiment!
+            </li>
+            <li class= "card-text text">
+              Now explore the Potentials tab to construct your potential well. Follow the instructions and watch your well 
+              update in real-time below.
+            </li>
+            <li class= "card-text text">
+              Once you are happy with the shape of your potential well navigate to the results tab to begin calculating the 
+              energies and their corresponding wavefunction. 
+            </li>
+            <li class= "card-text text">
+              Refer to the control panel below to pick and state and watch your graphs materialize. If you are getting excited 
+              at this point, resources and a breakdown of the underlying code can be found in the More tab.
+            </li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapse m-0 p-0" id="presets-banner">
+      <div class="card card-body">
+        <div class="m-0 p-0">
+        <h1 class="card-header">Setup:</h1>
+        <div class="row p-3">  
+          <div class="col">
+            <p class="fit">
+              To hop right in select a preset to begin exploring quatum wavefunctions. 
+              If not, change the well-size to your desired length. The well is measured in Ångstroms this is equivalent
+              10<sup>-10</sup> meters. Your sandbox workspace extends 
+              from 0 to your choice of well-size. E.g. a well-size of 5Å means we can create a well 
+              from 0Å to 5Å. Next, move on to Particles!
+            </p>
+          </div>
+          <div class="col">
+            <form method = "POST">
+              {% csrf_token %} 
+              <button type="submit" class="preset btn" name="smallWell">
+                Finite Square Well (small)
+              </button>
+              <button type="submit" class="preset btn" name="bigWell">
+                Finite Square Well (large)
+              </button>
+              <button type="submit" class="preset btn" name="perturbationWell">
+                Finite Square Well (perturbation)
+              </button>
+              <button type="submit" class="preset btn" name="quadWell">
+                Quad Finite Well
+              </button>
+            </form>
+          </div>
+          <div class="col">
+            <form method="POST" >
+              {% csrf_token %} 
+              <label class="fit">Well-Size (Å):</label>
+              <input id="particlelengthID" class="fit" type="text"  value="3" name="length"/>
+              <input class="btn btn-outline-dark" type="submit" name="wellSize"/>
+            </form>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapse" id="particles-banner">
+      <div class="card card-body">
+        <h1 class="card-header">Pick Your Player:</h1>
+        <div class="row p-3">
+          <div class="col">
+            <div>
+              <p class="fit">
+                Choose A particle to trap in your well.
+                feel free enter a custom value or use one of the presets.
+                Next move onto Potentials!
+              </p>
+            </div>
+          </div>
+          <div class="col">
+            <form method="POST">
+              {% csrf_token %} 
+              <button type="submit" name="electron" class="btn preset">
+              Electron
+              </button>
+              <button type="submit" name="proton" class="btn preset">
+              Proton
+              </button>
+              <button type="submit" name="muon" class="btn preset">
+              Muon
+              </button>
+            </form>
+          </div>
+          <div class="col">
+            <form method="POST" >
+              {% csrf_token %} 
+              <label class="fit">Particle Rest Mass (ev):</label>
+              <input id="particleSizeID" class="fit" type="text"  value="511000" name="size"/>
+              <input class="btn btn-outline-dark" type="submit" name="particleSize"/>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapse" id="potential-banner">
+      <h1 class="card-header">Construct the Terrain:</h1>
+      <div class="card card-body">
+        <div class="row p-3">
+          <div class="col">
+            <div>
+              <p class="fit">
+                Your well will be constructed between x=0 and x=well-size. Feel free to subdivide this area with as many step potentials as you would like. 
+                The value parameter is the depth of your well or subdivision. Remember values must be greater or equal to zero to produce bound states. 
+                Also, be sure to keep your subdivisions between the well-size boundaries. You can track your changes on the potential graph below!
+              </p>
+            </div>
+          </div>
+          <div class="col">
+            <form class = "forms" action = "" method="POST" >
+              {% csrf_token %}    
+              {{formPot.as_p}}
+              <input class="btn btn-outline-dark" type="submit" value="Enter" name="pot"/>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="collapse" id="results-banner">
+      <div class="card card-body">
+        <div class="row p-3">
+          <div class="col">
+            <h3 class="fit">Crunch the Numbers:</h3>
+            <p class="fit">
+              We are ready to calculate some results! Simulating quantum states is very computationally intensive
+              depending on the setup, so this may take a little while. When the page finishes loading, you will have access
+              to a suite of tools and measurement outcomes to explore. To see the recommended settings for optimal performance 
+              and accuracy, please refer to the More tab.
+            </p>
+          </div>
+          <div class="col d-flex align-items-center justify-content-center">
+            <form class="btn-group btn-group-lg" method="POST">
+              {% csrf_token %} 
+
+              <button id= "reload" class="btn btn-outline-danger preset" name="energy" type="submit">
+                Calculate Wavefunction
+              </button>
+              <button  class="btn btn-danger btn-lg" type="button" disabled>
+                <span id = "loader" class=" spinner-border spinner-border-sm" role="status" id="spinner" aria-hidden="true"></span>
+                <span class="visually-hidden">Loading...</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="collapse" id="more-banner">
+      <div class="card card-body">
+        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
+      </div>
+    </div>
+
+    <!-- This is to indicate the dashboard begining=======================================================================--> 
+    <div class="dashboard overflow-auto container-fluid">
+      <div class = "row mt-4 results-head">
+        <div class= "col-md-3">
+          <div class ="box shadow row" style ="height: 166px;">
+            <div class= "control-panel mt-4 col">
+              <p class = " row details-control">
+                Control Panel:
+              </p>
+              <div class="mb-2 row">
+                <form class=" w-100 input-group" method="POST">
+                    {% csrf_token %}
+                    <select class=" border border-dark form-select" name ="state">
+                      <option value="none" selected disabled hidden> State</option>
+                      {% for state in states %}
+                        <option value={{state}} >{{state}}</option>
+                      {% endfor %}
+                    </select>
+                    <input class ="bg-light btn border border-dark" value = "Graph" type="submit"/>
+                </form>
+              </div>
+              <div class="row">
+                <form class = "w-100" method="POST">
+                  {% csrf_token %}
+                  <button  class = "bg-light btn w-100 border border-dark" type="submit" name="clear">Clear Current Settings </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 w-75">
+          <div class="box shadow" style ="height: 166px;">
+            <div class= "row sparkboxes">
+              <div class= "col-md-3 box box1 m-auto" style="min-height: 80px;"> 
+                <div class= "row m-auto details">
+                  <h1 class = "text-center">
+                  {{energy}}
+                  </h1>
+                  <p class= "text-center">
+                  (Electronvolts)
+                  </p>
+                </div>
+                <h2 class = "indicator">
+                  E:
+                </h2> 
+              </div>
+              <div class= "col-md-3 box box2 m-auto" style="min-height: 80px;"> 
+                <div class= "row  m-auto details">
+                  <h1 class = "text-center">
+                    {{deltaX}}
+                  </h1>
+                  <p class= "text-center">
+                    (Ångstroms)
+                  </p>
+                </div>
+                <h2 class = "indicator">
+                  &#916;X:
+                </h2> 
+              </div>
+              <div class= "col-md-3 box box3 m-auto" style="min-height: 80px;"> 
+                <div class= "row  m-auto details">
+                  <h1 class = "text-center">
+                    {{deltaP}}
+                  </h1>
+                  <p class= "text-center">
+                    (Electronvolt⋅s/m)
+                  </p>
+                </div>
+                <h2 class = "indicator">
+                  &#916;P:
+                </h2> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class = "row mt-4 layer-one w-100">
+        <div class="col-md-5 w-50">
+          <div class="box shadow mt-4">
+            <div id = "pot">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5 w-50">
+          <div class="box shadow mt-4" style="position:relative;">
+            <div class = "precentage" id = "probability-precentage">
+                  0.0000%
+            </div>
+            <div id = "norm">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class = "row mt-4 layer-two w-100">
+        <div class="col-md-5 w-50">
+          <div class="box shadow mt-4">
+            <div id = "base">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5 w-50">
+          <div class="box shadow mt-4">
+            <div id="pnorm">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script>
+    document.querySelector("#loader").style.visibility = "hidden";
+    document.querySelector("#reload").addEventListener("click", ()=>{
+        document.querySelector("#loader").style.visibility = "visible";
+    });
+    
+    
+    //begin general dashboard setup
+    window.Apex = {
+      chart: {
+        foreColor: '#ccc',
+        toolbar: {
+          show: true,
+        },
+      },
+      stroke: {
+        width: 3
+      },
+      dataLabels: {
+        enabled: false
+      },
+      tooltip: {
+        theme: 'dark'
+      },
+      grid: {
+        borderColor: "#535A6C",
+        xaxis: {
+          lines: {
+            show: true
+          }
+        }
+      }
+    };
+    //inject all the relevent graph data
+    const potData = {{xyPot}};
+    const waveData = {{xyValues}};
+    const normXData = {{xyValuesNorm}};
+    const normPData = {{xyPValuesNorm}};
+
+
+    renderPot(potData, {{energyLevel}}); //render potential graph
+    renderWave(waveData, {{expX}}); //render the wavefunction graph
+    renderXNorm(normXData); //render the x-normlized wavefunction
+    renderPNorm(normPData); //render the p-normlized wavefunction 
+  
+    
+  </script>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
