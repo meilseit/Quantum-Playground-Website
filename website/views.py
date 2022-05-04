@@ -22,7 +22,7 @@ def home(request):
 
     try:
         flag = FlagStart.objects.first().flag
-    except TypeError:
+    except AttributeError:
         flag = True
 
     if request.method =="POST":
