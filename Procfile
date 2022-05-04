@@ -1,1 +1,1 @@
-web: gunicorn  /qmwell qmwell.wsgi
+web: gunicorn qmwell.wsgi
