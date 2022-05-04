@@ -5,10 +5,7 @@ from .models import ParticleSize, Pfactors, TrapLengh, Pair,Energies, PairNorm, 
 from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, loadPreset, setFlag
 import numpy as np
 
-FlagStart.objects.create()
 
-print("initalizing....")
-print(FlagStart.objects.first().flag)
 
 # Create your views here.
 def home(request):  
