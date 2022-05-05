@@ -5,7 +5,7 @@ import django_rq
 from rq.registry import StartedJobRegistry
 from .forms import CreateForm
 from .models import ParticleSize, Pfactors, TrapLengh, Pair,Energies, PairNorm, Xfactors, PotInt, FlagStart
-from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, loadPreset, presetPotentialSetup, setFlag
+from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, presetPotentialSetup
 from .tasks import presetTask, storeEnergiesTask
 import numpy as np
 import time
