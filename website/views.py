@@ -16,7 +16,6 @@ def home(request):
 
     queue = django_rq.get_queue('default', default_timeout=800) #intialize a redis queue in the background
     queueLen = len(queue) #keep track of queue length during every refresh
-    path = None
 
     xyValues = []
     xyValuesNorm = []

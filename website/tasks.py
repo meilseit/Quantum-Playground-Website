@@ -17,6 +17,7 @@ def presetTask(path):
         
 
 def storeEnergiesTask(E, psi, x):
+    
     for n in range(len(E)):
         for i in range(len(x)):
             Pair.objects.create(x = x[i], y = psi[i, n], state = n)

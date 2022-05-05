@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['quantum-playground.herokuapp.com']
 # Application definition
 
 INSTALLED_APPS = [
-    'django_rq',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
+    'django_rq',
 ]
 
 MIDDLEWARE = [
