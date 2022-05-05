@@ -38,11 +38,16 @@ def generateV():
 
 
 
-def clear(): #clears the data from the data base
+def clear(queue): #clears the data from the data base
+    queue.empty()
     Energies.objects.all().delete()
     Pair.objects.all().delete()
     Xfactors.objects.all().delete()
     Pfactors.objects.all().delete()
+    PotInt.objects.all().delete()
+    TrapLengh.objects.all().delete()
+    setFlag()
+    
 
 
 def populate():

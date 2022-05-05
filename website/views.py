@@ -13,6 +13,10 @@ import time
 # Create your views here.
 def home(request):  
 
+    flag = True
+    if(FlagStart.objects.first != None):
+        flag = False
+
     queue = django_rq.get_queue('default', default_timeout=800) #intialize a redis queue in the background
     queueLen = len(queue) #keep track of queue length during every refresh
 
@@ -30,33 +34,34 @@ def home(request):
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
+            clear(queue)
             path = "./website/static/website/presets/square_sm.npz"
-            TrapLengh.objects.all().delete()
             TrapLengh.objects.create(length=10.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "bigWell" in request.POST:  #when the perset of QHO is chosen
+            clear(queue)
             path = "./website/static/website/presets/square_lg.npz"
-            TrapLengh.objects.all().delete()
             TrapLengh.objects.create(length=100.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "perturbationWell" in request.POST:  #when the perset of QHO is chosen
+            clear(queue)
             path = "./website/static/website/presets/pertubation.npz"
-            TrapLengh.objects.all().delete()
             TrapLengh.objects.create(length=9.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "quadWell" in request.POST:  #when the perset of QHO is chosen
+            clear(queue)
             path = "./website/static/website/presets/quad.npz"
-            TrapLengh.objects.all().delete()
             TrapLengh.objects.create(length=16.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
+
         elif "wellSize" in request.POST: #when a well size is entered
             TrapLengh.objects.all().delete()
             length = float(request.POST["length"])
@@ -103,13 +108,13 @@ def home(request):
 
         #this is the fourth drop down menu
         elif "energy" in request.POST: #when we want to generate the energies 
-            clear()
+            clear(queue)
             x, psi, E, p2Op = generateE()
             queue.enqueue(storeEnergiesTask, args=(E, psi, x))
             arr = ExpectationValues(p2Op, x, psi, E)
             ProcessExpectationValues(arr)
             time.sleep(10.0)
-            print(len(Pair.objects.filter(state=1)))
+
 
         elif "state" in request.POST: #when we want to generate the momentums
             state = int(request.POST["state"])
@@ -130,13 +135,10 @@ def home(request):
 
 
         elif "clear" in request.POST:
-            clear()
-            PotInt.objects.all().delete()
-            TrapLengh.objects.all().delete()
-            setFlag()
+            clear(queue)
+            
 
 
-    flag = False
     x, V = generateV()
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
