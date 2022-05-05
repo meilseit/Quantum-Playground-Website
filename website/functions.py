@@ -6,17 +6,13 @@ from .models import PairNorm, ParticleSize, PotInt, Energies, TrapLengh, Pair, X
 import numpy as np
 
 
-
-
-
-
 def generateE():
     try:
         trapLength = TrapLengh.objects.first().length
         particleSize = ParticleSize.objects.first().size
     except AttributeError:
         trapLength = 3e-10
-        particleSize = 5110000.0
+        particleSize = 511000.0
     res = 1000
     quantumSandbox = Sandbox(Pot(populate()),trapLength, particleSize, res, extend=2 )
     x = quantumSandbox.x
@@ -28,7 +24,6 @@ def generateE():
 
 
 def generateV():
-    #TrapLengh(length = 3e-10).save()
     trapLength = 3e-10
     particleSize = 511000.0
     if(TrapLengh.objects.first() != None):
@@ -46,7 +41,6 @@ def generateV():
 def clear(): #clears the data from the data base
     Energies.objects.all().delete()
     Pair.objects.all().delete()
-    PairNorm.objects.all().delete()
     Xfactors.objects.all().delete()
     Pfactors.objects.all().delete()
 
@@ -63,8 +57,8 @@ def populate():
 def GraphState(n):
     objList = list(Pair.objects.filter(state = n))
     xyValues = [[objList[i].x ,objList[i].y] for i in range(len(objList))]
-    #objList = list(PairNorm.objects.filter(stateNorm = n))
     xyValuesNorm = [[objList[i].x ,(objList[i].y)**2] for i in range(len(objList))]
+
     yf = np.fft.fft(np.array(xyValues)[:, 1])
     freq = np.fft.fftfreq(len(xyValues), d=1/1000.0)
     yfNorm = (np.abs(yf))**2
@@ -99,7 +93,18 @@ def ProcessExpectationValues(arr):
         modelP.expP = arr[1][i]
         modelX.save()
         modelP.save()
-        
+
+
+def presetPotentialSetup(path):
+    PotInt.objects.all().delete()
+    npzfile = np.load(path)
+    potLayout = npzfile["V"]
+    for layouts in potLayout:
+        PotInt.objects.create(value = layouts[0], right_bound = layouts[1], left_bound = layouts[2])
+
+
+
+
 def loadPreset(fn):
     clear()
     PotInt.objects.all().delete()
@@ -108,18 +113,13 @@ def loadPreset(fn):
     psi = npzfile["psi"]
     E = npzfile["E"]
     p2Op = npzfile["p2Op"]
-    potLayout = npzfile["V"]
-    for layouts in potLayout:
-        PotInt.objects.create(value = layouts[0], right_bound = layouts[1], left_bound = layouts[2])
     arr = ExpectationValues(p2Op, x,psi,E)
     ProcessExpectationValues(arr)
     for n in range(len(E)):
         Energies.objects.create(n=n, Energy = E[n])
         for i in range(len(x)):
-            #y1 = (psi[i][n])**2
-            y2 = psi[i][n]
-            #PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
-            Pair.objects.create(x = x[i], y = y2, state = n)
+            y = psi[i][n]
+            Pair.objects.create(x = x[i], y = y, state = n)
 
 def setFlag():
     FlagStart.objects.all().delete()

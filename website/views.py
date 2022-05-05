@@ -1,14 +1,23 @@
 
+from ast import arg
 from django.shortcuts import render
+import django_rq
 from .forms import CreateForm
 from .models import ParticleSize, Pfactors, TrapLengh, Pair,Energies, PairNorm, Xfactors, PotInt, FlagStart
-from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, loadPreset, setFlag
+from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, loadPreset, presetPotentialSetup, setFlag
+from .tasks import presetTask, storeEnergiesTask
 import numpy as np
+import time
 
 
 
 # Create your views here.
 def home(request):  
+
+    queue = django_rq.get_queue('default', default_timeout=800) #intialize a redis queue in the background
+    queueLen = len(queue) #keep track of queue length during every refresh
+    path = None
+
     xyValues = []
     xyValuesNorm = []
     xyPValuesNorm = []
@@ -23,32 +32,42 @@ def home(request):
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
+            path = "./website/static/website/presets/square_sm.npz"
             TrapLengh.objects.all().delete()
             TrapLengh.objects.create(length=10.0e-10)
-            loadPreset("./website/static/website/presets/square_sm.npz")
-            setFlag()
+            presetPotentialSetup(path)
+            queue.enqueue(presetTask, args=(path,))
+            time.sleep(5.0)
         elif "bigWell" in request.POST:  #when the perset of QHO is chosen
+            path = "./website/static/website/presets/square_lg.npz"
             TrapLengh.objects.all().delete()
-            loadPreset("./website/static/website/presets/square_lg.npz")
             TrapLengh.objects.create(length=100.0e-10)
-            setFlag()
+            presetPotentialSetup(path)
+            queue.enqueue(presetTask, args=(path,))
+            time.sleep(5.0)
         elif "perturbationWell" in request.POST:  #when the perset of QHO is chosen
+            path = "./website/static/website/presets/pertubation.npz"
             TrapLengh.objects.all().delete()
-            loadPreset("./website/static/website/presets/pertubation.npz")
             TrapLengh.objects.create(length=9.0e-10)
-            setFlag()
+            presetPotentialSetup(path)
+            queue.enqueue(presetTask, args=(path,))
+            time.sleep(5.0)
         elif "quadWell" in request.POST:  #when the perset of QHO is chosen
+            path = "./website/static/website/presets/quad.npz"
             TrapLengh.objects.all().delete()
-            loadPreset("./website/static/website/presets/quad.npz")
             TrapLengh.objects.create(length=16.0e-10)
-            setFlag()
+            presetPotentialSetup(path)
+            queue.enqueue(presetTask, args=(path,))
+            time.sleep(5.0)
         elif "wellSize" in request.POST: #when a well size is entered
             TrapLengh.objects.all().delete()
             length = float(request.POST["length"])
             model = TrapLengh()
             model.length = length*1e-10
             model.save()
-      #this is the second drop down menu
+
+
+        #this is the second drop down menu
         elif "electron" in request.POST:  #when we have an elctron preset
             ParticleSize.objects.all().delete()
             size = 511000.0
@@ -73,6 +92,8 @@ def home(request):
             model = ParticleSize()
             model.size = size
             model.save()
+
+
         #this is the third drop down menu
         elif "pot" in request.POST:  #when we enter out potentials
             formPot = CreateForm(request.POST) #form is the form object 
@@ -80,28 +101,20 @@ def home(request):
             min = float(request.POST.get("left_bound")) 
             if(min < max and min >= 0): #check values to make sure the bounds are correct
                 formPot.save()
+
+
         #this is the fourth drop down menu
         elif "energy" in request.POST: #when we want to generate the energies 
             clear()
-            potLayout = []
-            for model in PotInt.objects.all():
-                potLayout.append([model.value, model.right_bound, model.left_bound])
             x, psi, E, p2Op = generateE()
-            arr = ExpectationValues(p2Op, x,psi,E)
+            queue.enqueue(storeEnergiesTask, args=(E, psi, x))
+            arr = ExpectationValues(p2Op, x, psi, E)
             ProcessExpectationValues(arr)
-            for n in range(len(E)):
-                Energies.objects.create(n=n, Energy = E[n])
-            for n in range(len(E)):
-                for i in range(len(x)):
-                    #y1 = (psi[i][n])**2
-                    y2 = psi[i][n]
-                    #PairNorm.objects.create(x = x[i], y = y1, stateNorm = n)
-                    Pair.objects.create(x = x[i], y = y2, state = n)
-            
+            time.sleep(10.0)
+            print(len(Pair.objects.filter(state=1)))
 
         elif "state" in request.POST: #when we want to generate the momentums
             state = int(request.POST["state"])
-            modelE = Energies.objects.get(n = state - 1)
             psi, psiNorm, psiNormP = GraphState(state - 1)
             xyValues.extend(psi)
             xyValuesNorm.extend(psiNorm)
@@ -116,22 +129,21 @@ def home(request):
             energy = "{:.3f}".format(modelE.Energy)
             expX = modelX.expX
             energyLevel = [[xmin, float(energy)],[xmax, float(energy)]]
+
+
         elif "clear" in request.POST:
             clear()
             PotInt.objects.all().delete()
             TrapLengh.objects.all().delete()
             setFlag()
 
-    try:
-        flag = FlagStart.objects.first().flag
-    except AttributeError:
-        flag = True
 
-    energies = ["{:.3f}".format(energy.Energy) for energy in Energies.objects.all()]
-    states = range(1, len(list(energies)) + 1)
+    flag = False
     x, V = generateV()
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
+
+
     if(flag):
         npzfile = np.load('./website/static/website/presets/setup.npz')
         xyValues = npzfile['psi'].tolist()
@@ -143,6 +155,10 @@ def home(request):
         deltaX = npzfile['deltaX']
         deltaP = npzfile['deltaP']
         expX = npzfile['expX']
+
+    energies = ["{:.3f}".format(energy.Energy) for energy in Energies.objects.all()]
+    states = range(1, len(list(energies)) + 1) 
+
     #this is what i am delivering to the template
     context = {
         "energyLevel":energyLevel,
@@ -156,6 +172,7 @@ def home(request):
         "deltaP": deltaP,
         "expX": expX,
         "xyPValuesNorm":xyPValuesNorm,
+        "queueLen":queueLen,
     }
      
     return render(request, "website/base.html", context)

@@ -262,7 +262,7 @@
                         <option value={{state}} >{{state}}</option>
                       {% endfor %}
                     </select>
-                    <input class ="bg-light btn border border-dark" value = "Graph" type="submit"/>
+                    <input class ="bg-light btn border border-dark" value = "Graph" type="submit" onclick="refresh({{queueLen}});"/>
                 </form>
               </div>
               <div class="row">
@@ -361,7 +361,12 @@
         document.querySelector("#loader").style.visibility = "visible";
     });
     
-    
+    function refresh(len){
+      if(len != 0){
+        window.location.reload()
+      }
+    }
+
     //begin general dashboard setup
     window.Apex = {
       chart: {
