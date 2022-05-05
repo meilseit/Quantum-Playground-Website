@@ -4,6 +4,9 @@ from .nuts_bolts.pot import Pot
 from .nuts_bolts.pot_int import Potint
 from .models import PairNorm, ParticleSize, PotInt, Energies, TrapLengh, Pair, Xfactors, Pfactors,FlagStart
 import numpy as np
+from redis import Redis
+from rq.command import send_stop_job_command
+
 
 
 def generateE():
@@ -40,13 +43,12 @@ def generateV():
 
 def clear(reg): #clears the data from the data base
     for job_id in reg.get_job_ids():
-        reg.remove(job_id, delete_job=True)
+        send_stop_job_command(Redis(), job_id)
+        print("success")
     Energies.objects.all().delete()
     Pair.objects.all().delete()
     Xfactors.objects.all().delete()
     Pfactors.objects.all().delete()
-    PotInt.objects.all().delete()
-    TrapLengh.objects.all().delete()
     setFlag()
     
 
@@ -68,7 +70,7 @@ def GraphState(n):
     xyValuesNorm = [[objList[i].x ,(objList[i].y)**2] for i in range(len(objList))]
 
     yf = np.fft.fft(np.array(xyValues)[:, 1])
-    freq = np.fft.fftfreq(len(xyValues), d=1/1000.0)
+    freq = np.fft.fftfreq(len(xyValues), d=(np.abs(xyValues[1][0] - xyValues[0][0])))
     yfNorm = (np.abs(yf))**2
     xyPValuesNorm = [[freq[i], float(yfNorm[i])] for i in range(len(freq))]
     return xyValues, xyValuesNorm, xyPValuesNorm
@@ -112,8 +114,7 @@ def presetPotentialSetup(path):
 
 
 def setFlag():
-    FlagStart.objects.all().delete()
-    setupFlag = FlagStart.objects.create()
+    setupFlag = FlagStart.objects.first()
     setupFlag.flag = False
     setupFlag.save()
 

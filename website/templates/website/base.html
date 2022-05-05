@@ -75,7 +75,10 @@
             Welcome to the Quantum Sandbox! This is an environment for you to experiment with the different 
             building blocks of quantum mechanics. Explore energies, uncertainties, potentials and of course, 
             wavefunctions. Hopefully this will help give you a better understanding of quantum interactions. 
-            To get started we have provided a set of instructions to help build you confidence using the software!
+            To get started we have provided a set of instructions to help build you confidence using the software! <br><br>
+            <strong>Note:</strong><em> Calculating solutions to the Schrödinger equation can be overwhelming to the severs so the as solutions 
+              are calculted more and more states will become available. Hit the Graph button to refresh!
+            </em>
           </p>
           <ol>
             <li class= "card-text text">
@@ -156,6 +159,9 @@
               <p class="fit">
                 Choose A particle to trap in your well.
                 feel free enter a custom value or use one of the presets.
+                Hint: Larger particles mean far more states so be carful what you pick.
+                The defualt seen in the input box is an electrons mass it is not recommended to venture more 
+                then 1000x that number!
                 Next move onto Potentials!
               </p>
             </div>
@@ -177,7 +183,7 @@
           <div class="col">
             <form method="POST" >
               {% csrf_token %} 
-              <label class="fit">Particle Rest Mass (ev):</label>
+              <label class="fit">Particle Rest Mass (ev/c<sup>2</sup>):</label>
               <input id="particleSizeID" class="fit" type="text"  value="511000" name="size"/>
               <input class="btn btn-outline-dark" type="submit" name="particleSize"/>
             </form>
@@ -194,7 +200,7 @@
             <div>
               <p class="fit">
                 Your well will be constructed between x=0 and x=well-size. Feel free to subdivide this area with as many step potentials as you would like. 
-                The value parameter is the depth of your well or subdivision. Remember values must be greater or equal to zero to produce bound states. 
+                The value parameter is the depth of your well or subdivision. Remember values must be greater or equal to zero to produce bound states (this website will only simulate bound states). 
                 Also, be sure to keep your subdivisions between the well-size boundaries. You can track your changes on the potential graph below!
               </p>
             </div>
@@ -211,14 +217,17 @@
     </div>
     <div class="collapse" id="results-banner">
       <div class="card card-body">
+        <h1 class="card-header">Crunch the Numbers:</h1>
         <div class="row p-3">
           <div class="col">
-            <h3 class="fit">Crunch the Numbers:</h3>
+            
             <p class="fit">
               We are ready to calculate some results! Simulating quantum states is very computationally intensive
               depending on the setup, so this may take a little while. When the page finishes loading, you will have access
-              to a suite of tools and measurement outcomes to explore. To see the recommended settings for optimal performance 
-              and accuracy, please refer to the More tab.
+              to a suite of tools and measurement outcomes to explore. The website uses a clever cache and queue systems to keep 
+              results streaming in as they are calculated to help minimize the load. This is done when the graph button is selected. Dont be suprised when as you begin 
+              exploring the ground states if more solutions become available to you along the way. The webTo see the recommended settings for optimal performance 
+              and accuracy, please refer to the More tab. 
             </p>
           </div>
           <div class="col d-flex align-items-center justify-content-center">
@@ -240,7 +249,24 @@
 
     <div class="collapse" id="more-banner">
       <div class="card card-body">
-        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
+        <h1 class="card-header">Keep Learning?</h1>
+        <div class="row p-3">
+          <br>
+          <div class="col">
+            <p>
+              I hope you enjoyed the webiste and everything worked well! The application is sill in beta so plenty could go wrong.
+              The github is linked below with a detailed breakdown of the code and underlying physics. If you are intrested in how this all 
+              works feel free to check it out!
+            </p>
+          </div>
+          <div class="col">
+            <a href='https://ide.geeksforgeeks.org/'>
+              <button class="btn btn-outline-dark preset">
+                <i class="bi bi-github"></i> QM GitHub Repo
+              </button>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 

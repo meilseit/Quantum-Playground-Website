@@ -5,7 +5,7 @@ import django_rq
 from rq.registry import StartedJobRegistry
 from .forms import CreateForm
 from .models import ParticleSize, Pfactors, TrapLengh, Pair,Energies, PairNorm, Xfactors, PotInt, FlagStart
-from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, presetPotentialSetup
+from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, presetPotentialSetup, setFlag
 from .tasks import presetTask, storeEnergiesTask
 import numpy as np
 import time
@@ -15,13 +15,13 @@ import time
 # Create your views here.
 def home(request):  
 
-    flag = True
-    if(FlagStart.objects.first != None):
-        flag = False
+    
 
     queue = django_rq.get_queue('default', default_timeout=800) #intialize a redis queue in the background
     registry = StartedJobRegistry(queue=queue)
+    
     queueLen = len(queue) #keep track of queue length during every refresh
+    print(queueLen)
 
     xyValues = []
     xyValuesNorm = []
@@ -38,6 +38,7 @@ def home(request):
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
             clear(registry)
+            TrapLengh.objects.all().delete()
             path = "./website/static/website/presets/square_sm.npz"
             TrapLengh.objects.create(length=10.0e-10)
             presetPotentialSetup(path)
@@ -45,6 +46,7 @@ def home(request):
             time.sleep(5.0)
         elif "bigWell" in request.POST:  #when the perset of QHO is chosen
             clear(registry)
+            TrapLengh.objects.all().delete()
             path = "./website/static/website/presets/square_lg.npz"
             TrapLengh.objects.create(length=100.0e-10)
             presetPotentialSetup(path)
@@ -52,6 +54,7 @@ def home(request):
             time.sleep(5.0)
         elif "perturbationWell" in request.POST:  #when the perset of QHO is chosen
             clear(registry)
+            TrapLengh.objects.all().delete()
             path = "./website/static/website/presets/pertubation.npz"
             TrapLengh.objects.create(length=9.0e-10)
             presetPotentialSetup(path)
@@ -59,6 +62,7 @@ def home(request):
             time.sleep(5.0)
         elif "quadWell" in request.POST:  #when the perset of QHO is chosen
             clear(registry)
+            TrapLengh.objects.all().delete()
             path = "./website/static/website/presets/quad.npz"
             TrapLengh.objects.create(length=16.0e-10)
             presetPotentialSetup(path)
@@ -139,12 +143,20 @@ def home(request):
 
         elif "clear" in request.POST:
             clear(registry)
-            
+            PotInt.objects.all().delete()
+            TrapLengh.objects.all().delete()
 
     x, V = generateV()
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
 
+    try:
+        if FlagStart.objects.first().flag:
+            flag = True
+        else:
+            flag = False
+    except AttributeError: 
+            flag = False
 
     if(flag):
         npzfile = np.load('./website/static/website/presets/setup.npz')
@@ -160,7 +172,8 @@ def home(request):
 
     energies = ["{:.3f}".format(energy.Energy) for energy in Energies.objects.all()]
     states = range(1, len(list(energies)) + 1) 
-
+    queueLen = len(queue) #keep track of queue length during every refresh
+    setFlag()
     #this is what i am delivering to the template
     context = {
         "energyLevel":energyLevel,
