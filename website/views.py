@@ -1,5 +1,4 @@
 
-from ast import arg
 from django.shortcuts import render
 import django_rq
 from .forms import CreateForm
