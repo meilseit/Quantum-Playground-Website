@@ -61,6 +61,8 @@ def populate():
 
 def GraphState(n):
     objList = list(Pair.objects.filter(state = n))
+    if(len(objList) == 0):
+        return [], [], []
     xyValues = [[objList[i].x ,objList[i].y] for i in range(len(objList))]
     xyValuesNorm = [[objList[i].x ,(objList[i].y)**2] for i in range(len(objList))]
 

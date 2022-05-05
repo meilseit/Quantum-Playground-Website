@@ -138,7 +138,6 @@ def home(request):
             clear(queue)
             
 
-
     x, V = generateV()
     potPairs = [[x[i],V[i]] for i in range(len(x))]
     xyPot.extend(potPairs)
