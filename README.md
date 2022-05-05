@@ -11,7 +11,7 @@ The underlying algorithm we are using is LAPACK eigenvalue and eigen vector rout
 - **Heroku** was used to deploy the website
 - **SqlLite** was used as the local database
 - **Postgresql** was used as the remote database 
-- **Redis** facilited a chache and queue system to preform async calculations
+- **Redis** facilited a cache and queue system to preform async calculations
 - **ApexCharts** a javascript graphing library
 - **Bootstrap** was used for styling the website
 - **Numpy** library provided support for matrix minipulation
