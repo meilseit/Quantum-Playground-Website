@@ -38,8 +38,9 @@ def generateV():
 
 
 
-def clear(queue): #clears the data from the data base
-    queue.empty()
+def clear(reg): #clears the data from the data base
+    for job_id in reg.get_job_ids():
+        reg.remove(job_id, delete_job=True)
     Energies.objects.all().delete()
     Pair.objects.all().delete()
     Xfactors.objects.all().delete()
@@ -109,24 +110,6 @@ def presetPotentialSetup(path):
     for layouts in potLayout:
         PotInt.objects.create(value = layouts[0], right_bound = layouts[1], left_bound = layouts[2])
 
-
-
-
-def loadPreset(fn):
-    clear()
-    PotInt.objects.all().delete()
-    npzfile = np.load(fn)
-    x = npzfile["x"]
-    psi = npzfile["psi"]
-    E = npzfile["E"]
-    p2Op = npzfile["p2Op"]
-    arr = ExpectationValues(p2Op, x,psi,E)
-    ProcessExpectationValues(arr)
-    for n in range(len(E)):
-        Energies.objects.create(n=n, Energy = E[n])
-        for i in range(len(x)):
-            y = psi[i][n]
-            Pair.objects.create(x = x[i], y = y, state = n)
 
 def setFlag():
     FlagStart.objects.all().delete()

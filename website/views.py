@@ -1,6 +1,8 @@
 
+
 from django.shortcuts import render
 import django_rq
+from rq.registry import StartedJobRegistry
 from .forms import CreateForm
 from .models import ParticleSize, Pfactors, TrapLengh, Pair,Energies, PairNorm, Xfactors, PotInt, FlagStart
 from .functions import GraphState, clear, generateE, generateV, ExpectationValues, ProcessExpectationValues, loadPreset, presetPotentialSetup, setFlag
@@ -18,6 +20,7 @@ def home(request):
         flag = False
 
     queue = django_rq.get_queue('default', default_timeout=800) #intialize a redis queue in the background
+    registry = StartedJobRegistry(queue=queue)
     queueLen = len(queue) #keep track of queue length during every refresh
 
     xyValues = []
@@ -34,28 +37,28 @@ def home(request):
     if request.method =="POST":
         #this is the first drop down menu
         if "smallWell" in request.POST: #When the preset of QFW is chosen
-            clear(queue)
+            clear(registry)
             path = "./website/static/website/presets/square_sm.npz"
             TrapLengh.objects.create(length=10.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "bigWell" in request.POST:  #when the perset of QHO is chosen
-            clear(queue)
+            clear(registry)
             path = "./website/static/website/presets/square_lg.npz"
             TrapLengh.objects.create(length=100.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "perturbationWell" in request.POST:  #when the perset of QHO is chosen
-            clear(queue)
+            clear(registry)
             path = "./website/static/website/presets/pertubation.npz"
             TrapLengh.objects.create(length=9.0e-10)
             presetPotentialSetup(path)
             queue.enqueue(presetTask, args=(path,))
             time.sleep(5.0)
         elif "quadWell" in request.POST:  #when the perset of QHO is chosen
-            clear(queue)
+            clear(registry)
             path = "./website/static/website/presets/quad.npz"
             TrapLengh.objects.create(length=16.0e-10)
             presetPotentialSetup(path)
@@ -108,7 +111,7 @@ def home(request):
 
         #this is the fourth drop down menu
         elif "energy" in request.POST: #when we want to generate the energies 
-            clear(queue)
+            clear(registry)
             x, psi, E, p2Op = generateE()
             queue.enqueue(storeEnergiesTask, args=(E, psi, x))
             arr = ExpectationValues(p2Op, x, psi, E)
@@ -135,7 +138,7 @@ def home(request):
 
 
         elif "clear" in request.POST:
-            clear(queue)
+            clear(registry)
             
 
     x, V = generateV()
